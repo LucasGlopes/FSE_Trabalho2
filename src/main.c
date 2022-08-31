@@ -3,6 +3,7 @@
 #include <fcntl.h>          //Used for UART
 #include <termios.h>        //Used for UART
 #include "../inc/uart.h"
+#include "../inc/12c_bme.h"
 
 int main(int argc, const char * argv[]) {
     int uart;
@@ -12,6 +13,7 @@ int main(int argc, const char * argv[]) {
     get_data(uart);
     close_uart(uart);
 
+    printf("Temperatura ambiente: %f\n", get_ambient_temperature());
 
    return 0;
 }
