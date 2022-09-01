@@ -5,5 +5,6 @@ int start_uart();
 void request_data(int uart);
 void get_data(int uart);
 void close_uart(int uart);
+void send_data(int uart);
 
 #endif

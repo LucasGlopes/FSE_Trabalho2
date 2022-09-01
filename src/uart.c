@@ -76,6 +76,38 @@ void get_data(int uart){
             printf("Temperatura: %f\n", response);
         }
     }
+    sleep(1);
+}
+
+void send_data(int uart){
+    unsigned char header[7] = {SERVER_ADDRESS, SEND_CODE, SEND_REFERENCE_SIGNAL, 0, 1, 0, 2};
+
+    unsigned char value[4];
+    float temperature = 40.5;
+    
+    memcpy(value, &temperature, sizeof(float));
+
+    unsigned char data[11];
+    memcpy(data, &header, 7);
+    memcpy(&data[7], &value, 4);
+
+    short crc = calcula_CRC(data, 11);
+
+    unsigned char message[13];
+    memcpy(message, &data, 11);
+    memcpy(&message[11], &crc, 2);
+
+        
+    if (uart != -1)
+    {
+        int count = write(uart, &message[0], 13);
+        if (count < 0)
+        {
+            printf("UART TX error\n");
+        }
+    }
+
+    sleep(1);
 }
 
 void close_uart(int uart){
