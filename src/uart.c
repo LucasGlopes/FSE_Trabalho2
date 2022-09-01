@@ -54,8 +54,8 @@ void request_data(int uart, unsigned char code){
 
 }
 
-void get_data(int uart){
-    float response;
+float get_data(int uart){
+    float response = -1;
     if (uart!= -1)
     {
         // Read up to 255 characters from the port if they are there
@@ -73,10 +73,11 @@ void get_data(int uart){
         {
             rx_buffer[rx_length] = '\0';
             memcpy(&response, &rx_buffer[3], sizeof(float));
-            printf("Temperatura: %f\n", response);
+            // printf("Temperatura: %f\n", response);
         }
     }
-    sleep(1);
+    
+    return response;
 }
 
 void send_data(int uart){
