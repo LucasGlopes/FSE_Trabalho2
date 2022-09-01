@@ -32,8 +32,8 @@ int start_uart(){
     return uart0_filestream;
 }
 
-void request_data(int uart){
-    unsigned char data[7] = {SERVER_ADDRESS, REQUEST_CODE, REQUEST_INTERNAL_TEMPERATURE, 0, 1, 0, 2};
+void request_data(int uart, unsigned char code){
+    unsigned char data[7] = {SERVER_ADDRESS, REQUEST_CODE, code, 0, 1, 0, 2};
     short crc = calcula_CRC(data, 7);
 
     unsigned char message[9];
