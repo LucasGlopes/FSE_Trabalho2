@@ -139,8 +139,8 @@ float get_ambient_temperature(){
     //     exit(1);
     // }
     temperature = stream_sensor_data_forced_mode(&dev);
-    return temperature;
     close(id.fd);
+    return temperature;
 
 }
 
