@@ -9,6 +9,7 @@
 #include "../inc/consts.h"
 #include "../inc/pid.h"
 #include "../inc/pwm.h"
+#include "../inc/i2c_lcd.h"
 
 int uart;
 
@@ -88,14 +89,18 @@ int main(int argc, const char * argv[]) {
 
 
     uart = start_uart();
-    // request_data(uart, REQUEST_INTERNAL_TEMPERATURE);
+    request_data(uart, REQUEST_INTERNAL_TEMPERATURE);
+    float ti =  get_data(uart);
     // printf("Temperatura interna: %f\n", get_data(uart));
     // // get_data(uart);
-    // request_data(uart, REQUEST_REFERENCE_TEMPERATURE);
+    request_data(uart, REQUEST_REFERENCE_TEMPERATURE);
+    float tr = get_data(uart);
     // printf("Temperatura de referencia: %f\n", get_data(uart));
     // // get_data(uart);
     // printf("Temperatura ambiente: %f\n", get_ambient_temperature());
-    airfryer();
+
+    // airfryer();
+    print_lcd(ti, tr, get_ambient_temperature());
     close_uart(uart);
 
 
