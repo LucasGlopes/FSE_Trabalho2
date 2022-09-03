@@ -10,25 +10,23 @@ void setup_gpio(){
     wiringPiSetup();
     pinMode(RESISTOR_PIN, OUTPUT);
     pinMode(FAN_PIN, OUTPUT);
+    softPwmCreate(RESISTOR_PIN, 0, 100);
+    softPwmCreate(FAN_PIN, 0, 100);
 }
 
 void activate_resistor(int intensity){
-    softPwmCreate(RESISTOR_PIN, 0, 100);
     softPwmWrite(RESISTOR_PIN, intensity);
 }
 
 void activate_fan(int intensity){
-    softPwmCreate(FAN_PIN, 0, 100);
     softPwmWrite(FAN_PIN, intensity);
 }
 
 void deactivate_resistor(){
-    softPwmCreate(RESISTOR_PIN, 0, 100);
     softPwmWrite(RESISTOR_PIN, 0);
 }
 
 void deactivate_fan(){
-    softPwmCreate(FAN_PIN, 0, 100);
     softPwmWrite(FAN_PIN, 0);
 }
 

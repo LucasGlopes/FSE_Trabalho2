@@ -32,6 +32,6 @@ void lcdLoc(int line); //move cursor
 void ClrLcd(void); // clr LCD return home
 void typeln(const char *s);
 void typeChar(char val);
-void print_lcd(float TI, float TR, float TE);
+void print_lcd(float TI, float TR);
 
 #endif 

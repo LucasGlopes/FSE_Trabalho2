@@ -10,6 +10,8 @@
 
 #include "../inc/bme280.h"
 
+static int8_t file_descriptor; 
+
 struct identifier
 {
     /* Variable to hold device address */
@@ -60,10 +62,12 @@ int8_t user_i2c_write(uint8_t reg_addr, const uint8_t *data, uint32_t len, void 
 
 float stream_sensor_data_forced_mode(struct bme280_dev *dev)
 {
+
     int8_t rslt;
     uint8_t settings_sel;
 	uint32_t req_delay;
     struct bme280_data comp_data;
+
 
     /* Recommended mode of operation: Indoor navigation */
     dev->settings.osr_h = BME280_OVERSAMPLING_1X;
@@ -79,15 +83,78 @@ float stream_sensor_data_forced_mode(struct bme280_dev *dev)
      *  and the oversampling configuration. */
     req_delay = bme280_cal_meas_delay(&dev->settings);
 
+
     rslt = bme280_set_sensor_mode(BME280_FORCED_MODE, dev);
     /* Wait for the measurement to complete and print data @25Hz */
     dev->delay_us(req_delay, dev->intf_ptr);
+
     rslt = bme280_get_sensor_data(BME280_ALL, &comp_data, dev);
 
     return comp_data.temperature;
     // print_sensor_data(&comp_data);
     // return rslt;
 }
+
+struct bme280_dev connect_bme(){
+    struct bme280_dev dev;
+
+    struct identifier id;
+
+
+    /* Variable to define the result */
+    int8_t rslt = BME280_OK;
+
+    if ((id.fd = open("/dev/i2c-1", O_RDWR)) < 0)
+    {
+        fprintf(stderr, "Failed to open the i2c bus \n");
+        exit(1);
+    }
+
+    file_descriptor = id.fd; 
+
+
+    id.dev_addr = BME280_I2C_ADDR_PRIM;
+    if (ioctl(id.fd, I2C_SLAVE, id.dev_addr) < 0)
+    {
+        fprintf(stderr, "Failed to acquire bus access and/or talk to slave.\n");
+        exit(1);
+    }
+
+
+    /* Make sure to select BME280_I2C_ADDR_PRIM or BME280_I2C_ADDR_SEC as needed */
+
+    dev.intf = BME280_I2C_INTF;
+    dev.read = user_i2c_read;
+    dev.write = user_i2c_write;
+    dev.delay_us = user_delay_us;
+
+    /* Update interface pointer with the structure that contains both device address and file descriptor */
+    dev.intf_ptr = &id;
+
+    /* Initialize the bme280 */
+    rslt = bme280_init(&dev);
+    if (rslt != BME280_OK)
+    {
+        fprintf(stderr, "Failed to initialize the device (code %+d).\n", rslt);
+        exit(1);
+    }
+
+
+    return dev;
+}
+
+// float get_ambient_temperature(struct bme280_dev *dev){
+//     float temperature;
+
+//     temperature = stream_sensor_data_forced_mode(&dev);
+//     return temperature;
+
+// }
+
+
+
+
+
 
 float get_ambient_temperature(){
     struct bme280_dev dev;
@@ -98,6 +165,8 @@ float get_ambient_temperature(){
 
     /* Variable to define the result */
     int8_t rslt = BME280_OK;
+
+    file_descriptor = id.fd; 
 
 
     if ((id.fd = open("/dev/i2c-1", O_RDWR)) < 0)
@@ -145,3 +214,6 @@ float get_ambient_temperature(){
 }
 
 
+void bme280_driver_close(void){
+    close(file_descriptor);
+}

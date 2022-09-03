@@ -17,7 +17,7 @@
 
 int fd;  // seen by all subroutines
 
-void print_lcd(float TI, float TR, float TE)   {
+void print_lcd(float TI, float TR)   {
 
   if (wiringPiSetup () == -1) exit (1);
 
@@ -25,7 +25,7 @@ void print_lcd(float TI, float TR, float TE)   {
 
   //printf("fd = %d ", fd);
 
-  lcd_init(); // setup LCD
+  // lcd_init(); // setup LCD
 
   char array1[] = "TI:";
   char array2[] = " TR:";
@@ -34,17 +34,17 @@ void print_lcd(float TI, float TR, float TE)   {
 
 
 
-    ClrLcd();
-    lcdLoc(LINE1);
-    typeln(array1);
-    typeFloat(TI);
-    typeln(array2);
-    typeFloat(TR);
-    lcdLoc(LINE2);
-    typeln(array3);
-    typeFloat(TE);
-    delay(15000);
-    ClrLcd(); // defaults LINE1
+  ClrLcd();
+  lcdLoc(LINE1);
+  typeln(array1);
+  typeFloat(TI);
+  typeln(array2);
+  typeFloat(TR);
+  // lcdLoc(LINE2);
+  // typeln(array3);
+  // typeFloat(TE);
+  // delay(15000);
+  // ClrLcd(); // defaults LINE1
     
 }
 

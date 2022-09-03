@@ -58,16 +58,15 @@ float get_data(int uart){
     float response = -1;
     if (uart!= -1)
     {
-        // Read up to 255 characters from the port if they are there
         unsigned char rx_buffer[15];
-        int rx_length = read(uart, (void*)rx_buffer, 15);      //Filestream, buffer to store in, number of bytes to read (max)
+        int rx_length = read(uart, (void*)rx_buffer, 15);      
         if (rx_length < 0)
         {
-            printf("Erro na leitura.\n"); //An error occured (will occur if there are no bytes)
+            printf("Erro na leitura.\n"); 
         }
         else if (rx_length == 0)
         {
-            printf("Nenhum dado disponível.\n"); //No data waiting
+            printf("Nenhum dado disponível.\n"); 
         }
         else
         {
