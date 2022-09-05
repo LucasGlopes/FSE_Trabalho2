@@ -32,6 +32,7 @@ void lcdLoc(int line); //move cursor
 void ClrLcd(void); // clr LCD return home
 void typeln(const char *s);
 void typeChar(char val);
-void print_lcd(float TI, float TR);
+void print_ti_tr(float TI, float TR, int current_time);
+void print_status(int status);
 
 #endif 

@@ -23,49 +23,121 @@ void finish_device(){
     exit(0);
 }
 
-void airfryer(){
+// void panel_routine(){
+//     float TI, TR, TE;
+//     double Kp = 30.0;
+//     double Ki = 0.2;
+//     double Kd = 400.0;
+
+//     int intensity;
+
+//     pid_configura_constantes(Kp, Ki, Kd);
+
+//     setup_gpio();
+//     lcd_init();
+//     struct bme280_dev dev;
+//     dev = connect_bme();
+
+//     do{
+//         request_data(uart, REQUEST_REFERENCE_TEMPERATURE);
+//         TR = get_data(uart);
+
+//         printf("Temperatura de referencia: %f\n", TR);
+
+
+//         pid_atualiza_referencia(TR);
+
+//         request_data(uart, REQUEST_INTERNAL_TEMPERATURE);
+//         TI = get_data(uart);
+
+//         printf("Temperatura interna: %f\n", TI);
+
+
+//         intensity = pid_controle(TI);
+
+//         pwm_control(intensity);
+
+//         print_lcd(TI, TR);
+
+//         sleep(1);
+
+//     }while(abs(TR - TI) > 0.05);
+
+
+//     TE = get_ambient_temperature();
+//     if(TE == -1) TE = 24;
+//     printf("Temperatura ambiente: %f\n", TE);
+
+
+//     pid_atualiza_referencia(TE);
+//     do{
+//         request_data(uart, REQUEST_INTERNAL_TEMPERATURE);
+//         TI = get_data(uart);
+
+//         printf("Temperatura interna: %f\n", TI);
+
+
+//         intensity = pid_controle(TI);
+
+//         pwm_control(intensity);
+//         print_lcd(TI, TE);
+
+//         sleep(1);
+
+//     }while(abs(TE - TI) > 0.5);
+
+//     ClrLcd();
+//     deactivate_resistor();
+//     deactivate_fan();
+//     bme280_driver_close();
+
+// }
+
+void selected_food_routine(int tref, int selected_time){
     float TI, TR, TE;
     double Kp = 30.0;
     double Ki = 0.2;
     double Kd = 400.0;
 
     int intensity;
+    int current_time = selected_time * 60;
+    int timerStatus = 1;
 
     pid_configura_constantes(Kp, Ki, Kd);
 
     setup_gpio();
     lcd_init();
-    struct bme280_dev dev;
-    dev = connect_bme();
+    // struct bme280_dev dev;
+    // dev = connect_bme();
 
-    do{
-        request_data(uart, REQUEST_REFERENCE_TEMPERATURE);
-        TR = get_data(uart);
+    TI = 0;
+    TR = tref;
+    
+    printf("Temperatura de referencia: %f\n", TR);
+    pid_atualiza_referencia(TR);
 
-        printf("Temperatura de referencia: %f\n", TR);
-
-
-        pid_atualiza_referencia(TR);
-
+    while(timerStatus == 1){
         request_data(uart, REQUEST_INTERNAL_TEMPERATURE);
         TI = get_data(uart);
 
         printf("Temperatura interna: %f\n", TI);
 
-
         intensity = pid_controle(TI);
 
         pwm_control(intensity);
 
-        // print_lcd(TI, TR, get_ambient_temperature(&dev));
-        // print_lcd(TI, TR, stream_sensor_data_forced_mode(&dev));
-        print_lcd(TI, TR);
+        if(current_time < 0){
+            timerStatus = 0;
+        }
+        else if(abs(TR - TI) < 0.5){
+            print_ti_tr(TI, TR, current_time);
+            current_time--;
+        }else{
+            print_status(1);
+        }
 
 
-        sleep(1);
-
-    }while(abs(TR - TI) > 0.05);
-
+    }
 
     TE = get_ambient_temperature();
     if(TE == -1) TE = 24;
@@ -83,17 +155,59 @@ void airfryer(){
         intensity = pid_controle(TI);
 
         pwm_control(intensity);
-        print_lcd(TI, TE);
+        print_status(2);
 
         sleep(1);
-
     }while(abs(TE - TI) > 0.5);
 
     ClrLcd();
     deactivate_resistor();
     deactivate_fan();
     bme280_driver_close();
+}
 
+void food_menu(){
+    int option;
+    int choices [4][2] = {{35, 1}, {40, 2}, {60, 1}, {30, 3}};
+
+    printf("======== Alimentos Pré-definidos ========\n");
+    printf("Escolha sua opção:\n");
+    printf("1 - Frango - 35°C - 1min\n");
+    printf("2 - Batata - 40°C - 2min\n");
+    printf("3 - Almôndega - 60°C - 1min\n");
+    printf("2 - Pastel - 30°C - 3min\n");
+    printf("===========================\n\n");
+
+    scanf("%d", &option);
+    selected_food_routine(choices[option - 1][0], choices[option - 1][1]);
+}
+
+void panel_control_menu(){
+    int selected_time;
+
+    printf("======== Painel ========\n\n");
+    printf("Digite o tempo (em minutos):\n");
+    printf("A temperatura é definida pelo painel de controle!");
+
+    scanf("%d", &selected_time);
+
+}
+
+
+void print_menu(){
+    int option;
+
+    printf("======== AIR FRYER ========\n");
+    printf("Escolha sua opção:\n");
+    printf("1 - Painel de Controle\n");
+    printf("2 - Escolher alimento pré-selecionado\n");
+    printf("===========================\n\n");
+
+    scanf("%d", &option);
+
+    if(option == 2){
+        food_menu();
+    }
 }
 
 int main(int argc, const char * argv[]) {
@@ -101,27 +215,18 @@ int main(int argc, const char * argv[]) {
 
 
     uart = start_uart();
-    // request_data(uart, REQUEST_INTERNAL_TEMPERATURE);
-    // float ti =  get_data(uart);
-    // printf("Temperatura interna: %f\n", get_data(uart));
-    // // get_data(uart);
-    // request_data(uart, REQUEST_REFERENCE_TEMPERATURE);
-    // float tr = get_data(uart);
-    // printf("Temperatura de referencia: %f\n", get_data(uart));
-    // // get_data(uart);
-    // printf("Temperatura ambiente: %f\n", get_ambient_temperature());
 
-    airfryer();
-    // print_lcd(TI, tr, get_ambient_temperature());
+    // panel_routine();
+    // print_menu()
+    connect_bme();
+    printf("%f\n", get_ambient_temperature());
+    sleep(1);
+    printf("%f\n", get_ambient_temperature());
     close_uart(uart);
 
 
    return 0;
 }
 
-// void print_menu(){
-//     printf("======== AIR FRYER ========\n\n");
-//     printf("Escolha sua opção:\n");
-//     printf("1 -")
-// }
+
 

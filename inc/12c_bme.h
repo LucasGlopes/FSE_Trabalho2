@@ -9,7 +9,7 @@ int8_t user_i2c_write(uint8_t reg_addr, const uint8_t *data, uint32_t len, void 
 float stream_sensor_data_forced_mode(struct bme280_dev *dev);
 // float get_ambient_temperature(struct bme280_dev *dev);
 float get_ambient_temperature();
-struct bme280_dev connect_bme();
+void connect_bme();
 void bme280_driver_close(void);
 
 #endif

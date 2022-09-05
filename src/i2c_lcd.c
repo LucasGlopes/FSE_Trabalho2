@@ -17,7 +17,7 @@
 
 int fd;  // seen by all subroutines
 
-void print_lcd(float TI, float TR)   {
+void print_ti_tr(float TI, float TR, int current_time)   {
 
   if (wiringPiSetup () == -1) exit (1);
 
@@ -29,9 +29,8 @@ void print_lcd(float TI, float TR)   {
 
   char array1[] = "TI:";
   char array2[] = " TR:";
-  char array3[] = " TE:";
-
-
+  char array3[] = " TIME:";
+  char array4[] = "s";
 
 
   ClrLcd();
@@ -40,12 +39,27 @@ void print_lcd(float TI, float TR)   {
   typeFloat(TI);
   typeln(array2);
   typeFloat(TR);
-  // lcdLoc(LINE2);
-  // typeln(array3);
-  // typeFloat(TE);
-  // delay(15000);
-  // ClrLcd(); // defaults LINE1
-    
+  lcdLoc(LINE2);
+  typeln(array3);
+  typeInt(current_time);
+  typeln(array4);
+
+}
+
+void print_status(int status){
+  if (wiringPiSetup () == -1) exit (1);
+
+  fd = wiringPiI2CSetup(I2C_ADDR);
+  ClrLcd();
+
+  if(status == 1){
+    lcdLoc(LINE1);
+    typeln("PREPARANDO");
+  }else{
+    lcdLoc(LINE1);
+    typeln("RESFRIANDO");
+  }
+
 }
 
 
