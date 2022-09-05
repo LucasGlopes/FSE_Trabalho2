@@ -15,7 +15,6 @@
 int uart;
 float TI, TR, TE;
 
-
 void init_device(){
     double Kp = 30.0;
     double Ki = 0.2;
@@ -39,86 +38,24 @@ void finish_device(){
     exit(0);
 }
 
-// void panel_routine(){
-//     float TI, TR, TE;
-//     double Kp = 30.0;
-//     double Ki = 0.2;
-//     double Kd = 400.0;
 
-//     int intensity;
-
-
-
-//     do{
-//         request_data(uart, REQUEST_REFERENCE_TEMPERATURE);
-//         TR = get_data(uart);
-
-//         printf("Temperatura de referencia: %f\n", TR);
-
-
-//         pid_atualiza_referencia(TR);
-
-//         request_data(uart, REQUEST_INTERNAL_TEMPERATURE);
-//         TI = get_data(uart);
-
-//         printf("Temperatura interna: %f\n", TI);
-
-
-//         intensity = pid_controle(TI);
-
-//         pwm_control(intensity);
-
-//         print_lcd(TI, TR);
-
-//         sleep(1);
-
-//     }while(abs(TR - TI) > 0.05);
-
-
-//     TE = get_ambient_temperature();
-//     if(TE == -1) TE = 24;
-//     printf("Temperatura ambiente: %f\n", TE);
-
-
-//     pid_atualiza_referencia(TE);
-//     do{
-//         request_data(uart, REQUEST_INTERNAL_TEMPERATURE);
-//         TI = get_data(uart);
-
-//         printf("Temperatura interna: %f\n", TI);
-
-
-//         intensity = pid_controle(TI);
-
-//         pwm_control(intensity);
-//         print_lcd(TI, TE);
-
-//         sleep(1);
-
-//     }while(abs(TE - TI) > 0.5);
-
-//     ClrLcd();
-//     deactivate_resistor();
-//     deactivate_fan();
-//     bme280_driver_close();
-
-// }
-
-void selected_food_routine(int tref, int selected_time){
+void airfyer_routine(int tref, int selected_time, int type_heating){
     int intensity;
     int current_time = selected_time * 60;
     int timerStatus = 1;
 
-    pthread_t log_thread_id;
-    pthread_create(&log_thread_id, NULL, (void*)control_log, NULL);
-
     TI = 0;
     TR = tref;
     
-    printf("Temperatura de referencia: %f\n", TR);
     pid_atualiza_referencia(TR);
 
     while(timerStatus == 1){
+        if(type_heating == 1){
+            request_data(uart, REQUEST_REFERENCE_TEMPERATURE);
+            TR = get_data(uart);
+            pid_atualiza_referencia(TR);
+        }
+
         request_data(uart, REQUEST_INTERNAL_TEMPERATURE);
         TI = get_data(uart);
 
@@ -162,7 +99,6 @@ void selected_food_routine(int tref, int selected_time){
 
         write_log(TI, TE, TR,intensity);
 
-        sleep(1);
     }while(abs(TE - TI) > 0.5);
 
     ClrLcd();
@@ -190,17 +126,23 @@ void food_menu(){
     }
 
     if(option == 5) return;
-    selected_food_routine(choices[option - 1][0], choices[option - 1][1]);
+    airfyer_routine(choices[option - 1][0], choices[option - 1][1], 2);
 }
 
 void panel_control_menu(){
     int selected_time;
 
     printf("======== Painel ========\n\n");
-    printf("Digite o tempo (em minutos):\n");
+    printf("Digite o tempo (em minutos) ou digite 0(zero) para voltar ao menu inicial:\n");
     printf("A temperatura é definida pelo painel de controle!\n");
 
     scanf("%d", &selected_time);
+    while(selected_time < 0){
+        printf("Digite um valor maior do que zero:\n");
+        scanf("%d", &selected_time); 
+    }
+    if(selected_time == 0) return;
+    airfyer_routine(0, selected_time, 1);
 
 }
 
@@ -239,9 +181,7 @@ int main(int argc, const char * argv[]) {
     signal(SIGINT, finish_device);
 
     init_device();
-    // panel_routine();
     print_menu();
-    printf("deu certo\n");
 
     finish_device();
 
