@@ -72,7 +72,6 @@ float get_data(int uart){
         {
             rx_buffer[rx_length] = '\0';
             memcpy(&response, &rx_buffer[3], sizeof(float));
-            // printf("Temperatura: %f\n", response);
         }
     }
     

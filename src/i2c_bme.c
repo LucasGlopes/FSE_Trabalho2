@@ -95,17 +95,6 @@ float stream_sensor_data_forced_mode(struct bme280_dev *dev)
     dev->delay_us(req_delay, dev->intf_ptr);
 
     rslt = bme280_get_sensor_data(BME280_ALL, &comp_data, dev);
-    
-    sleep(1);
-
-    req_delay = bme280_cal_meas_delay(&dev->settings);
-
-
-    rslt = bme280_set_sensor_mode(BME280_FORCED_MODE, dev);
-    /* Wait for the measurement to complete and print data @25Hz */
-    dev->delay_us(req_delay, dev->intf_ptr);
-
-    rslt = bme280_get_sensor_data(BME280_ALL, &comp_data, dev);
 
     return comp_data.temperature;
     // print_sensor_data(&comp_data);
