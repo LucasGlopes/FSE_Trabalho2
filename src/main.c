@@ -59,8 +59,6 @@ void airfyer_routine(int tref, int selected_time, int type_heating){
         request_data(uart, REQUEST_INTERNAL_TEMPERATURE);
         TI = get_data(uart);
 
-        printf("Temperatura interna: %f\n", TI);
-
         intensity = pid_controle(TI);
 
         pwm_control(intensity);
@@ -83,14 +81,12 @@ void airfyer_routine(int tref, int selected_time, int type_heating){
     do{
         TE = get_ambient_temperature();
         if(TE == -1) TE = 24;
-        printf("Temperatura ambiente: %f\n", TE);
 
         pid_atualiza_referencia(TE);
 
         request_data(uart, REQUEST_INTERNAL_TEMPERATURE);
         TI = get_data(uart);
 
-        printf("Temperatura interna: %f\n", TI);
 
         intensity = pid_controle(TI);
 
