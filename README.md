@@ -18,7 +18,7 @@ make
 bin/run
 ```
 
-### Uso
+## Uso
  O usuário poderá escolher entre 2 opções:
 * Pelo terminal, aonde poderá definir o tempo para aquecimento, com a Temperatura de Referência pela dashboard.
 * Por meio de um menu com alimentos pré-selecionados com tempo e temperatura já definidos.
